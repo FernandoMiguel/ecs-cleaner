@@ -7,7 +7,7 @@ Cleans up stale task definitions, images or instances from ECS, ECR and EC2.
 Pull the latest stable ecs-cleaner container via Docker:
 
 ```sh
-docker pull quay.io/vend/ecs-cleaner:latest
+docker pull fernandomiguel/ecs-cleaner
 ```
 
 ## Usage
@@ -15,21 +15,15 @@ docker pull quay.io/vend/ecs-cleaner:latest
 ### Configuration
 
 ecs-cleaner uses the standard AWS SDK environment variables and configuration files.
-Inside the container, ecs-cleaner runs as the root user. So, one option for passing
-in configuration is using environment variables, and the `-e` flag to `docker run`, e.g.
 
+Using aws-vault to authenticate securely:
 ```
-sudo docker run -e AWS_REGION=us-west-2 -e AWS_ACCESS_KEY_ID=foo quay.io/vend/ecs-cleaner:latest <subcommand>
+aws-vault --debug exec \<YOUR_PROFILE_HERE\> --session-ttl=8h --assume-role-ttl=1h --server
 ```
 
-But this isn't recommended, because it can leak your credentials into `ps`, `docker inspect`,
-and other places. A better way to do this is to use the `~/.aws/config.json` and `~/.aws/credentials.json`
-configuration files.
-
-The user is root inside the container, so mount your config files at `/root/.aws`.
-
+And then start docker with the right region
 ```
-sudo docker run -e AWS_REGION=us-west-2 -v ~/.aws:/root/.aws quay.io/vend/ecs-cleaner:latest <subcommand>
+docker run --rm -it -e AWS_REGION=eu-west-1 ecs-cleaner
 ```
 
 ### CLI usage
